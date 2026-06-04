@@ -69,34 +69,20 @@ def send_tg_photo(msg, photo_path):
         with open(photo_path, "rb") as f:
             photo_data = f.read()
         
-        body_parts = []
-        body_parts.append(("--" + boundary).encode())
-        body_parts.append(b'Content-Disposition: form-data; name="chat_id"
-'.encode())
-        body_parts.append(TG_CHAT.encode())
-        body_parts.append(b"
-".encode())
+        def make_part(header_str, body_val=b""):
+            return (header_str + "\r\n").encode() + (body_val if isinstance(body_val, bytes) else body_val.encode()) + b"\r\n"
         
-        body_parts.append(("--" + boundary).encode())
-        body_parts.append(b'Content-Disposition: form-data; name="caption"
-'.encode())
-        body_parts.append(("G4F: " + msg).encode("utf-8"))
-        body_parts.append(b"
-".encode())
-        
-        body_parts.append(("--" + boundary).encode())
-        body_parts.append(('Content-Disposition: form-data; name="photo"; filename="' + filename + '"
-').encode())
-        body_parts.append(("Content-Type: " + mime_type + "
-
-").encode())
-        body_parts.append(photo_data)
-        body_parts.append(b"
-".encode())
-        body_parts.append(("--" + boundary + "--
-").encode())
-        
-        body = b"".join(body_parts)
+        body = b""
+        body += make_part(f"--{boundary}")
+        body += make_part('Content-Disposition: form-data; name="chat_id"', TG_CHAT)
+        body += make_part(f"--{boundary}")
+        body += make_part('Content-Disposition: form-data; name="caption"', ("G4F: " + msg))
+        body += make_part(f"--{boundary}")
+        body += ('Content-Disposition: form-data; name="photo"; filename="' + filename + '"\r\n').encode()
+        body += ("Content-Type: " + mime_type + "\r\n\r\n").encode()
+        body += photo_data
+        body += b"\r\n"
+        body += (f"--{boundary}--\r\n").encode()
         
         url = f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto"
         req = urllib.request.Request(url, data=body, headers={
@@ -109,7 +95,6 @@ def send_tg_photo(msg, photo_path):
                 return True
             else:
                 print(f"[TG-PHOTO] API error: {result}")
-                # Fallback to text
                 send_tg(msg)
                 return False
     except Exception as e:
@@ -117,7 +102,7 @@ def send_tg_photo(msg, photo_path):
         send_tg(msg)
         return False
 
-print(f"\n===== 开始执行极速续期 (G4F.GG) =====")
+
 print(f"账户列表: {ACCOUNTS}")
 print(f"账户数量: {len(ACCOUNTS)}\n")
 
