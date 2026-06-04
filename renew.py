@@ -150,7 +150,7 @@ for idx, MC_USERNAME in enumerate(ACCOUNTS, 1):
                 print(f"[RADAR] CF 盾坐标: ({target_x}, {target_y})")
             else:
                 print("[RADAR] 未找到 iframe，使用黄金盲狙坐标")
-                target_x, target_y = "820", "580"
+                target_x, target_y = "640", "405"
                 print(f"[RADAR] 黄金坐标: ({target_x}, {target_y})")
 
             print("物理鼠标点击 Turnstile...")
