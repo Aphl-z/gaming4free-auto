@@ -54,6 +54,69 @@ def send_tg(msg):
         traceback.print_exc()
         return False
 
+def send_tg_photo(msg, photo_path):
+    """Send Telegram message with photo attachment"""
+    if not TG_TOKEN or not TG_CHAT:
+        print(f"[TG-PHOTO] Skip - no token/chat")
+        return False
+    
+    try:
+        import mimetypes
+        boundary = "----PythonFormBoundary7MA4YWxkTrZu0gW"
+        mime_type = mimetypes.guess_type(photo_path)[0] or "image/png"
+        filename = os.path.basename(photo_path)
+        
+        with open(photo_path, "rb") as f:
+            photo_data = f.read()
+        
+        body_parts = []
+        body_parts.append(("--" + boundary).encode())
+        body_parts.append(b'Content-Disposition: form-data; name="chat_id"
+'.encode())
+        body_parts.append(TG_CHAT.encode())
+        body_parts.append(b"
+".encode())
+        
+        body_parts.append(("--" + boundary).encode())
+        body_parts.append(b'Content-Disposition: form-data; name="caption"
+'.encode())
+        body_parts.append(("G4F: " + msg).encode("utf-8"))
+        body_parts.append(b"
+".encode())
+        
+        body_parts.append(("--" + boundary).encode())
+        body_parts.append(('Content-Disposition: form-data; name="photo"; filename="' + filename + '"
+').encode())
+        body_parts.append(("Content-Type: " + mime_type + "
+
+").encode())
+        body_parts.append(photo_data)
+        body_parts.append(b"
+".encode())
+        body_parts.append(("--" + boundary + "--
+").encode())
+        
+        body = b"".join(body_parts)
+        
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto"
+        req = urllib.request.Request(url, data=body, headers={
+            "Content-Type": "multipart/form-data; boundary=" + boundary
+        })
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            result = json.loads(resp.read().decode())
+            if result.get("ok"):
+                print(f"[TG-PHOTO] Photo sent -> chat_id={TG_CHAT}")
+                return True
+            else:
+                print(f"[TG-PHOTO] API error: {result}")
+                # Fallback to text
+                send_tg(msg)
+                return False
+    except Exception as e:
+        print(f"[TG-PHOTO] Failed: {e}")
+        send_tg(msg)
+        return False
+
 print(f"\n===== 开始执行极速续期 (G4F.GG) =====")
 print(f"账户列表: {ACCOUNTS}")
 print(f"账户数量: {len(ACCOUNTS)}\n")
