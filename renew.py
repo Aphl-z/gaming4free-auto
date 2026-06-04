@@ -166,12 +166,12 @@ for idx, MC_USERNAME in enumerate(ACCOUNTS, 1):
                 print("[WARN] 截图保存失败")
 
             print("[OK] 流程执行完毕")
-            send_tg(f"[OK] [{MC_USERNAME}] +90min 已续约")
+            send_tg_photo(f"[OK] [{MC_USERNAME}] +90min", f"screenshots/{MC_USERNAME}_2_result.png")
 
     except Exception as e:
         print(f"[ERROR] {e}")
         traceback.print_exc()
-        send_tg(f"[FAIL] [{MC_USERNAME}] 续约失败: {e}")
+        send_tg_photo(f"[FAIL] [{MC_USERNAME}] {e}", f"screenshots/{MC_USERNAME}_error.png")
 
 print(f"\n{'='*60}")
 print(f"所有账户处理完成! 共处理 {len(ACCOUNTS)} 个账户")
