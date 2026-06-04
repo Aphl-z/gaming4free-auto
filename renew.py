@@ -166,17 +166,15 @@ for idx, MC_USERNAME in enumerate(ACCOUNTS, 1):
                 print("[WARN] 截图保存失败")
 
             print("[OK] 流程执行完毕")
-            send_tg(f"[OK] 服务器 [{MC_USERNAME}] 续期脚本运行完毕!\n破盾方式: 双重核武物理盲狙\n请查阅 GitHub Actions Artifact 截图确认战果")
+            send_tg(f"[OK] [{MC_USERNAME}] +90min 已续约")
 
     except Exception as e:
         print(f"[ERROR] {e}")
         traceback.print_exc()
-        send_tg(f"[FAIL] 账户 [{MC_USERNAME}] 自动续期崩溃: {e}")
+        send_tg(f"[FAIL] [{MC_USERNAME}] 续约失败: {e}")
 
 print(f"\n{'='*60}")
 print(f"所有账户处理完成! 共处理 {len(ACCOUNTS)} 个账户")
 print(f"{'='*60}\n")
 
-# 发送汇总通知 (如果配置了TG)
-if len(ACCOUNTS) >= 1:
-    send_tg(f"G4F 续期批次完成 - 共处理 {len(ACCOUNTS)} 个账户: {', '.join(ACCOUNTS)}")
+# (batch summary notification removed)
