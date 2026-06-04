@@ -55,6 +55,89 @@ def send_tg(msg):
         return False
 
 def send_tg_photo(msg, photo_path):
+    """Send Telegram message with photo via requests library"""
+    if not TG_TOKEN or not TG_CHAT:
+        print(f"[TG-PHOTO] Skip - no token/chat")
+        return False
+    
+    try:
+        import requests
+        filename = os.path.basename(photo_path)
+        
+        with open(photo_path, "rb") as f:
+            r = requests.post(
+                f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
+                data={"chat_id": TG_CHAT, "caption": f"G4F: {msg}"},
+                files={"photo": (filename, f, "image/png")},
+                timeout=15
+            )
+            result = r.json()
+            if result.get("ok"):
+                print(f"[TG-PHOTO] Photo sent -> chat_id={TG_CHAT}")
+                return True
+            else:
+                print(f"[TG-PHOTO] API error: {result}")
+                send_tg(msg)
+                return False
+    except Exception as e:
+        print(f"[TG-PHOTO] Failed: {e}")
+        send_tg(msg)
+        return False
+
+# ==========================================
+# G4F.GG 自动续期 (修复版 - TG通知可追踪)
+# ==========================================
+TARGET_URL = "https://g4f.gg/renqi" 
+
+# 多账户支持
+ACCOUNTS = []
+if os.getenv("MC_USERNAME"):
+    ACCOUNTS.append(os.getenv("MC_USERNAME"))
+if os.getenv("MC_USERNAME_2"):
+    ACCOUNTS.append(os.getenv("MC_USERNAME_2"))
+
+if not ACCOUNTS:
+    print("[ERROR] 未配置任何账户！请设置 MC_USERNAME 和/或 MC_USERNAME_2 Secret")
+    sys.exit(1)
+
+TG_TOKEN = os.getenv("TG_TOKEN", "")
+TG_CHAT = os.getenv("TG_CHAT_ID", "")
+
+print(f"[TG] Token 长度: {len(TG_TOKEN)} (掩码: {TG_TOKEN[:8]}*** 如为0则未配置)")
+print(f"[TG] Chat ID: {TG_CHAT}")
+
+def send_tg(msg):
+    """发送 Telegram 通知，失败时打印详细错误"""
+    if not TG_TOKEN or not TG_CHAT:
+        print(f"[TG] 跳过发送 - Token或Chat ID未配置 (token_len={len(TG_TOKEN)}, chat={TG_CHAT})")
+        return False
+    
+    try:
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage"
+        payload = json.dumps({
+            "chat_id": TG_CHAT,
+            "text": f"G4F 自动续期:\n{msg}",
+            "parse_mode": "HTML"
+        }).encode('utf-8')
+        req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            result = json.loads(resp.read().decode())
+            if result.get("ok"):
+                print(f"[TG] 消息发送成功 -> chat_id={TG_CHAT}")
+                return True
+            else:
+                print(f"[TG] 发送失败! API返回: {result}")
+                return False
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        print(f"[TG] HTTP错误 {e.code}: {body}")
+        return False
+    except Exception as e:
+        print(f"[TG] 发送异常: {e}")
+        traceback.print_exc()
+        return False
+
+def send_tg_photo(msg, photo_path):
     """Send Telegram message with photo attachment"""
     if not TG_TOKEN or not TG_CHAT:
         print(f"[TG-PHOTO] Skip - no token/chat")
