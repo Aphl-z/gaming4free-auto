@@ -52,6 +52,7 @@ jobs:
       - name: Run script
         env:
           MC_USERNAME: ${{ secrets.MC_USERNAME }}
+          MC_USERNAME_2: ads
           TG_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: |
