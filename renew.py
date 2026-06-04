@@ -64,6 +64,18 @@ def send_tg_photo(msg, photo_path):
         import requests
         filename = os.path.basename(photo_path)
         
+        if not os.path.exists(photo_path):
+            print(f"[TG-PHOTO] File not found: {photo_path}")
+            send_tg(msg)
+            return False
+        
+        fsize = os.path.getsize(photo_path)
+        print(f"[TG-PHOTO] File size: {fsize} bytes, path: {photo_path}")
+        if fsize < 1000:
+            print(f"[TG-PHOTO] File too small ({fsize}b), skipping photo")
+            send_tg(msg)
+            return False
+        
         with open(photo_path, "rb") as f:
             r = requests.post(
                 f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
