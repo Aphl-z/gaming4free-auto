@@ -67,7 +67,7 @@ def send_tg_photo(msg, photo_path):
         with open(photo_path, "rb") as f:
             r = requests.post(
                 f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
-                data={"chat_id": TG_CHAT, "caption": f"G4F: {msg}"},
+                data={"chat_id": int(TG_CHAT), "caption": f"G4F: {msg}"},
                 files={"photo": (filename, f, "image/png")},
                 timeout=15
             )
@@ -76,7 +76,7 @@ def send_tg_photo(msg, photo_path):
                 print(f"[TG-PHOTO] Photo sent -> chat_id={TG_CHAT}")
                 return True
             else:
-                print(f"[TG-PHOTO] API error: {result}")
+                print(f"[TG-PHOTO] API error {r.status_code}: {result}")
                 send_tg(msg)
                 return False
     except Exception as e:
