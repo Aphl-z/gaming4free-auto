@@ -1,0 +1,29 @@
+{
+  "servers": [
+    {
+      "name": "Nass",
+      "url": "https://g4f.gg/ads",
+      "username": "MC_USERNAME"
+    },
+    {
+      "name": "lucky-va",
+      "url": "https://asd-2.g4f.gg",
+      "username": "MC_USERNAME_2"
+    }
+  ],
+  "turnstile": {
+    "click_x": 640,
+    "click_y": 405
+  },
+  "proxy": {
+    "enabled": true,
+    "type": "socks5",
+    "host": "127.0.0.1",
+    "port": 40000
+  },
+  "telegram": {
+    "enabled": true,
+    "bot_token_secret": "TG_BOT_TOKEN",
+    "chat_id_secret": "TG_CHAT_ID"
+  }
+}
