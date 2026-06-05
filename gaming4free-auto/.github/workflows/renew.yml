@@ -1,0 +1,42 @@
+name: 自动续期服务器
+
+on:
+  schedule:
+    # 每小时的第40分钟运行
+    - cron: '40 * * * *'
+  workflow_dispatch:
+    # 允许手动触发
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+    
+    - name: 设置 Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: 安装依赖
+      run: |
+        pip install playwright requests python-telegram-bot
+        playwright install chromium
+    
+    - name: 运行续期脚本
+      env:
+        MC_USERNAME: ${{ secrets.MC_USERNAME }}
+        MC_USERNAME_2: ${{ secrets.MC_USERNAME_2 }}
+        TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+        TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      run: python renew.py
+    
+    - name: 上传截图（如果失败）
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: screenshots
+        path: screenshots/
+        retention-days: 7
